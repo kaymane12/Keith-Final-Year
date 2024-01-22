@@ -1,6 +1,6 @@
 <?php
 session_start();
-//include("includes/config.php");
+include("includes/config.php");
 $mysql_hostname = "localhost";
 $mysql_user = "root";
 $mysql_password = "";
@@ -31,7 +31,7 @@ window.print();
 <body>
 <table width="100%" border="0">
 <?php 
-		 $ret= mysql_query("SELECT * FROM registration where emailid = '".$_GET['id']."'");
+		 $ret= mysql_query("SELECT * FROM registration where id = '".$_GET['id']."'");
 			while($row=mysql_fetch_array($ret))
 			{
 			?>
