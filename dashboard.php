@@ -30,8 +30,6 @@ if (isset($_POST['submit'])) {
         $_SESSION['id'] = $id;
         $_SESSION['login'] = $email;
 
-        //
-
         // Close the statement
         $stmt->close();
 
@@ -50,9 +48,6 @@ if (isset($_POST['submit'])) {
     }
 }
 
-// Debugging: Check if $_SESSION['total_fee'] is set and not empty
-var_dump($_SESSION['total_fee']); // This will output the value of $_SESSION['total_fee'] for debugging purposes
-
 // If the user is already logged in, fetch their details
 if (isset($_SESSION['login'])) {
     // Fetch student details from the database
@@ -63,6 +58,17 @@ if (isset($_SESSION['login'])) {
     $stmt->bind_result($firstName, $lastName, $regno, $gender, $contactno, $egycontactno, $emailid, $corresPincode, $corresCity, $foodstatus);
     $stmt->fetch();
     $stmt->close();
+
+    // Fetch balance from the finance table
+    $stmtBalance = $mysqli->prepare("SELECT total_fee, amount_paid FROM finance WHERE emailid = ?");
+    $stmtBalance->bind_param("s", $_SESSION['login']);
+    $stmtBalance->execute();
+    $stmtBalance->bind_result($totalFee, $amountPaid);
+    $stmtBalance->fetch();
+    $stmtBalance->close();
+
+    // Calculate the balance
+    $balance = $totalFee - $amountPaid;
 
     // Check if $_SESSION['total_fee'] is set and not empty
     if (isset($_SESSION['total_fee']) && $_SESSION['total_fee'] !== '') {
@@ -103,7 +109,7 @@ if (isset($_SESSION['login'])) {
 
         .panel-body {
             min-height: 20px;
-			align-content: right;
+            align-content: right;
         }
 
         .panel-footer {
@@ -145,7 +151,6 @@ if (isset($_SESSION['login'])) {
         <?php include("includes/sidebar.php");?>
         <div class="content-wrapper">
             <div class="container-fluid">
-
                 <div class="row">
                     <div class="col-md-12">
                         <h2 class="page-title">Dashboard</h2>
@@ -156,13 +161,12 @@ if (isset($_SESSION['login'])) {
                                         <div class="panel panel-default">
                                             <div class="panel-body bk-primary text-light">
                                                 <div class="stat-panel text-center">
-                                                    <div class="stat-panel-number h1 ">My Profile</div>
+                                                    <div class="stat-panel-number h1">My Profile</div>
                                                 </div>
                                             </div>
                                             <a href="my-profile.php" class="block-anchor panel-footer">Full Detail <i class="fa fa-arrow-right"></i></a>
                                         </div>
                                     </div>
-									
                                     <div class="col-md-6">
                                         <div class="panel panel-default">
                                             <div class="panel-body bk-primary text-light">
@@ -176,7 +180,6 @@ if (isset($_SESSION['login'])) {
                                 </div>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="panel panel-default">
@@ -239,10 +242,16 @@ if (isset($_SESSION['login'])) {
                                         <table class="table table-bordered">
                                             <tbody>
                                                 <tr>
-                                                    <td><b>Total Fee :</b></td>
-                                                    <td colspan="2">
-                                                        <?php echo $totalFee; ?>
-                                                    </td>
+                                                    <td><b>Total Fee:</b></td>
+                                                    <td><?php echo isset($totalFee) ? $totalFee : 'N/A'; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Amount Paid:</b></td>
+                                                    <td><?php echo isset($amountPaid) ? $amountPaid : 'N/A'; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Balance:</b></td>
+                                                    <td><?php echo isset($balance) ? $balance : 'N/A'; ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -252,7 +261,6 @@ if (isset($_SESSION['login'])) {
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

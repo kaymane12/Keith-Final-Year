@@ -2,8 +2,76 @@
 session_start();
 include('includes/config.php');
 include('includes/checklogin.php');
+
 check_login();
+
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    
+    $stmt = $mysqli->prepare("SELECT id FROM userregistration WHERE email=? AND password=? ");
+    $stmt->bind_param('ss', $email, $password);
+    $stmt->execute();
+    $stmt->bind_result($id);
+    $stmt->fetch();
+    $stmt->close();
+    
+    if ($id) {
+        $_SESSION['id'] = $id;
+        $_SESSION['login'] = $email;
+    }
+}
+
+// Proceed with updating or inserting total_fee and emailid into the finance table
+
+if (isset($_SESSION['login'])) {
+    $uemail = $_SESSION['login']; // Get the user's email from session
+    $totalFee = $_SESSION['total_fee']; // Get the total fee from session
+    
+    // Check if the emailid already exists in the finance table
+    $check_stmt = $mysqli->prepare("SELECT COUNT(*) FROM finance WHERE emailid = ?");
+    $check_stmt->bind_param('s', $uemail);
+    $check_stmt->execute();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
+    $check_stmt->close();
+
+    if ($count > 0) {
+        // Email ID already exists, update the total_fee for the existing entry
+        $update_stmt = $mysqli->prepare("UPDATE finance SET total_fee = ? WHERE emailid = ?");
+        $update_stmt->bind_param('ds', $totalFee, $uemail);
+        if ($update_stmt->execute()) {
+            echo '<script>alert("Total fee updated in finance table");</script>';
+        } else {
+            echo '<script>alert("Error updating total fee in finance table");</script>';
+        }
+        $update_stmt->close();
+    } else {
+        // Email ID does not exist, insert a new entry with total_fee
+        $insert_stmt = $mysqli->prepare("INSERT INTO finance (emailid, total_fee) VALUES (?, ?)");
+        $insert_stmt->bind_param('sd', $uemail, $totalFee);
+        if ($insert_stmt->execute()) {
+            echo '<script>alert("New entry with total fee inserted into finance table");</script>';
+        } else {
+            echo '<script>alert("Error inserting new entry with total fee into finance table");</script>';
+        }
+        $insert_stmt->close();
+    }
+}
 ?>
+
+
+
+
+        // Insert or update total fee and email ID into finance table using ON DUPLICATE KEY UPDATE
+        $stmtInsert = $mysqli->prepare("INSERT INTO finance (emailid, total_fee) VALUES (?, ?) ON DUPLICATE KEY UPDATE total_fee = ?");
+        $stmtInsert->bind_param("sdd", $emailid, $totalFee, $totalFee);
+        $stmtInsert->execute();
+        $stmtInsert->close();
+    }
+}
+?>
+
 <!doctype html>
 <html lang="en" class="no-js">
 
@@ -107,15 +175,45 @@ echo "With Food";
 <tr>
 <td colspan="6"><b>Total Fee : 
 <?php
+// Your calculation logic here
 if ($row->foodstatus == 1) { 
     $fd = 2000; 
     $totalFee = (($dr * $fpm) + $fd);
 } else {
     $totalFee = $dr * $fpm;
 }
+
+// Store the total fee in the session
 $_SESSION['total_fee'] = $totalFee;
-echo $totalFee; // Optionally, you can echo the totalFee here if you need to display it immediately
+$uemail=$_SESSION['login'];
+
+// Display the total fee
+echo '<tr>';
+echo '<td colspan="6"><b>Total Fee : ' . $totalFee . '</b></td>';
+echo '</tr>';
+
+// Insert the fee into the database
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=hostel', 'root', '');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Prepare the SQL statement
+    $stmt = $pdo->prepare("INSERT INTO finance (total_fee) VALUES (:total_fee)");
+
+    // Bind the parameter
+    $stmt->bindParam(':total_fee', $totalFee);
+
+    // Execute the query
+    $stmt->execute();
+
+    // Optionally, you can handle success or show a message to the user
+    echo '<p>Fee inserted into the database successfully.</p>';
+} catch (PDOException $e) {
+    // Handle database errors here
+    echo '<p>Error: ' . $e->getMessage() . '</p>';
+}
 ?>
+
 </b></td>
 </tr>
 <tr>
