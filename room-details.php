@@ -22,28 +22,26 @@ if (isset($_POST['login'])) {
     }
 }
 
-// Proceed with updating or inserting total_fee and emailid into the finance table
-
 if (isset($_SESSION['login'])) {
     $uemail = $_SESSION['login']; // Get the user's email from session
-    $totalFee = $_SESSION['total_fee']; // Get the total fee from session
+    $totalFee = isset($_SESSION['total_fee']) ? $_SESSION['total_fee'] : 0; // Initialize total fee
     
     // Check if the emailid already exists in the finance table
-    $check_stmt = $mysqli->prepare("SELECT COUNT(*) FROM finance WHERE emailid = ?");
+    $check_stmt = $mysqli->prepare("SELECT total_fee FROM finance WHERE emailid = ?");
     $check_stmt->bind_param('s', $uemail);
     $check_stmt->execute();
-    $check_stmt->bind_result($count);
+    $check_stmt->bind_result($existingTotalFee);
     $check_stmt->fetch();
     $check_stmt->close();
 
-    if ($count > 0) {
-        // Email ID already exists, update the total_fee for the existing entry
+    if ($existingTotalFee !== null) {
+        // Email ID exists, update the total_fee for the existing entry
         $update_stmt = $mysqli->prepare("UPDATE finance SET total_fee = ? WHERE emailid = ?");
         $update_stmt->bind_param('ds', $totalFee, $uemail);
         if ($update_stmt->execute()) {
-            echo '<script>alert("Total fee updated in finance table");</script>';
+            echo '<script>alert("Total fee updated in finance table for user: ' . $uemail . '");</script>';
         } else {
-            echo '<script>alert("Error updating total fee in finance table");</script>';
+            echo '<script>alert("Error updating total fee in finance table for user: ' . $uemail . '");</script>';
         }
         $update_stmt->close();
     } else {
@@ -51,25 +49,14 @@ if (isset($_SESSION['login'])) {
         $insert_stmt = $mysqli->prepare("INSERT INTO finance (emailid, total_fee) VALUES (?, ?)");
         $insert_stmt->bind_param('sd', $uemail, $totalFee);
         if ($insert_stmt->execute()) {
-            echo '<script>alert("New entry with total fee inserted into finance table");</script>';
+            echo '<script>alert("New entry with total fee inserted into finance table for user: ' . $uemail . '");</script>';
         } else {
-            echo '<script>alert("Error inserting new entry with total fee into finance table");</script>';
+            echo '<script>alert("Error inserting new entry with total fee into finance table for user: ' . $uemail . '");</script>';
         }
         $insert_stmt->close();
     }
 }
-?>
 
-
-
-
-        // Insert or update total fee and email ID into finance table using ON DUPLICATE KEY UPDATE
-        $stmtInsert = $mysqli->prepare("INSERT INTO finance (emailid, total_fee) VALUES (?, ?) ON DUPLICATE KEY UPDATE total_fee = ?");
-        $stmtInsert->bind_param("sdd", $emailid, $totalFee, $totalFee);
-        $stmtInsert->execute();
-        $stmtInsert->close();
-    }
-}
 ?>
 
 <!doctype html>
