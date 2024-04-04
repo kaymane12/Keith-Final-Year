@@ -106,7 +106,7 @@ class Mpesa
         curl_close($ch);
         return;
     }
-Z
+
     public static function AccessToken()
     {
         self::load();
