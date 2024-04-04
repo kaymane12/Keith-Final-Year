@@ -70,6 +70,12 @@ if (isset($_SESSION['login'])) {
     // Calculate the balance
     $balance = $totalFee - $amountPaid;
 
+    // Update the balance in the finance table
+    $updateBalanceStmt = $mysqli->prepare("UPDATE finance SET balance = ? WHERE emailid = ?");
+    $updateBalanceStmt->bind_param("ds", $balance, $_SESSION['login']);
+    $updateBalanceStmt->execute();
+    $updateBalanceStmt->close();
+
     // Check if $_SESSION['total_fee'] is set and not empty
     if (isset($_SESSION['total_fee']) && $_SESSION['total_fee'] !== '') {
         $totalFee = $_SESSION['total_fee'];
