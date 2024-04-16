@@ -275,7 +275,7 @@ if (isset($_SESSION['login'])) {
 
     <div class="footer">
         <footer>
-            <p> Brought To You By <a href="https://code-projects.org/">Code-Projects</a></p>
+            <p> Brought To You By <a href="">Keith & Keith coding</a></p>
         </footer>
     </div>
 </body>
