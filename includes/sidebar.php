@@ -1,3 +1,9 @@
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+</head>
 <nav class="ts-sidebar">
 			<ul class="ts-sidebar-menu">
 			
@@ -12,8 +18,8 @@
 <li><a href="access-log.php"><i class="fa fa-file-o"></i>Access log</a></li>
 <li><a href="view-notice.php"><i class="fa fa-bullhorn"></i>Noticeboard</a></li>
 <li><a href="livechat.php"><i class="fa fa-headphones"></i>Support</a></li>
-<li><a href="lipa.php"><i class="fas fa-university"></i>Payment</a></li>
-<li><a href="history.php"><i class="fas fa-receipt-o"></i>Receipt</a></li>
+<li><a href="lipa.php"><i class="fas fa-university"></i>Billing</a></li>
+
 
 
 <?php } else { ?>

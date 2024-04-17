@@ -1,6 +1,6 @@
 <?php
 session_start();
-unset($_SESSION['id']);
-session_destroy();
-header('Location:index.php');
+// Redirect the user to the rating page
+header('Location: rating.php');
+exit();
 ?>
