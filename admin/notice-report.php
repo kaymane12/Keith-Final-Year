@@ -65,58 +65,66 @@ $mysqli->close();
             <div class="row">
                 <div class="col-md-12">
                   
-                    <canvas id="noticeChart" width="400" height="200"></canvas>
+                    <canvas id="noticeChart" width="40" height="20"></canvas>
 
                     <script>
-                        var ctx = document.getElementById('noticeChart').getContext('2d');
-                        var chart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: <?php echo json_encode($labels); ?>,
-                                datasets: [
-                                    <?php foreach ($titles as $title): ?>
-                                    {
-                                        label: '<?php echo $title; ?>',
-                                        data: [
-                                            <?php foreach ($labels as $timestamp): ?>
-                                                <?php echo isset($data[$timestamp][$title]) ? $data[$timestamp][$title] : 0; ?>,
-                                            <?php endforeach; ?>
-                                        ],
-                                        backgroundColor: getRandomColor(),
-                                        borderWidth: 1
-                                    },
-                                    <?php endforeach; ?>
-                                ]
-                            },
-                            options: {
-                                scales: {
-                                    x: {
-                                        stacked: true,
-                                        title: {
-                                            display: true,
-                                            text: 'Timestamp'
-                                        }
-                                    },
-                                    y: {
-                                        stacked: false,
-                                        title: {
-                                            display: true,
-                                            text: 'Title'
-                                        }
-                                    }
-                                }
-                            }
-                        });
+    // Create the bar chart
+    var ctx = document.getElementById('noticeChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode($labels); ?>,
+            datasets: [
+                <?php foreach ($titles as $title): ?>
+                {
+                    label: '<?php echo $title; ?>',
+                    data: [
+                        <?php foreach ($labels as $timestamp): ?>
+                            <?php echo isset($data[$timestamp][$title]) ? $data[$timestamp][$title] : 0; ?>,
+                        <?php endforeach; ?>
+                    ],
+                    backgroundColor: getRandomColor(),
+                    borderWidth: 1
+                },
+                <?php endforeach; ?>
+            ]
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Timestamp'
+                    },
+                    categoryPercentage: 0.8 // Adjusts the width of bars relative to the category width
+                },
+                y: {
+                    stacked: false,
+                    title: {
+                        display: true,
+                        text: 'Title'
+                    },
+                    // Adjust the suggested min and max values for y-axis
+                    suggestedMin: 0, // Minimum value for y-axis
+                    suggestedMax: 10 // Maximum value for y-axis, adjust as needed
+                }
+            },
+            barPercentage: 0.5 // Adjusts the width of the bars relative to the available space
+        }
+    });
 
-                        function getRandomColor() {
-                            var letters = '0123456789ABCDEF';
-                            var color = '#';
-                            for (var i = 0; i < 6; i++) {
-                                color += letters[Math.floor(Math.random() * 16)];
-                            }
-                            return color;
-                        }
-                    </script>
+    // Function to get a random color for bars
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+</script>
+
                 </div>
             </div>
         </div>

@@ -232,7 +232,7 @@ $stmt->close();
                                     <td><?php echo $notice['id']; ?></td>
                                     <td><?php echo $notice['title']; ?></td>
                                     <td><?php echo $notice['content']; ?></td>
-                                    <td><img src="<?php echo $notice['image']; ?>" alt="Notice Image" style=" max-width: 100px; border-radius: 5px;"></td>                                            max-width: 100px; border-radius: 5px;"></td>
+                                    <td><img src="<?php echo htmlspecialchars($notice['image'], ENT_QUOTES); ?>" alt="Notice Image" style="max-width: 100px; border-radius: 10px;"></td>
                                     <td><?php echo $notice['timestamp']; ?></td>
                                     <td>
                                         <a href="edit-notice.php?id=<?php echo $notice['id']; ?>" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a>

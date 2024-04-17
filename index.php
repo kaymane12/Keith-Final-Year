@@ -1,42 +1,57 @@
 <?php
 session_start();
 include('includes/config.php');
-if(isset($_POST['login']))
-{
-$email=$_POST['email'];
-$password=$_POST['password'];
-$stmt=$mysqli->prepare("SELECT email,password,id FROM userregistration WHERE email=? and password=? ");
-				$stmt->bind_param('ss',$email,$password);
-				$stmt->execute();
-				$stmt -> bind_result($email,$password,$id);
-				$rs=$stmt->fetch();
-				$stmt->close();
-				$_SESSION['id']=$id;
-				$_SESSION['login']=$email;
-				$uip=$_SERVER['REMOTE_ADDR'];
-				$ldate=date('d/m/Y h:i:s', time());
-				if($rs)
-				{
-             $uid=$_SESSION['id'];
-             $uemail=$_SESSION['login'];
-$ip=$_SERVER['REMOTE_ADDR'];
-$geopluginURL='http://www.geoplugin.net/php.gp?ip='.$ip;
-$addrDetailsArr = unserialize(file_get_contents($geopluginURL));
-$city = $addrDetailsArr['geoplugin_city'];
-$country = $addrDetailsArr['geoplugin_countryName'];
-$log="insert into userLog(userId,userEmail,userIp,city,country) values('$uid','$uemail','$ip','$city','$country')";
-$mysqli->query($log);
-if($log)
-{
-header("location:dashboard.php");
-				}
+
+if (isset($_POST['login'])) {
+    // Get user input
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // Prepare a statement to fetch the user's details
+    $stmt = $mysqli->prepare("SELECT email, password, id FROM userregistration WHERE email = ? AND password = ?");
+    $stmt->bind_param('ss', $email, $password);
+    $stmt->execute();
+    $stmt->bind_result($email, $password, $id);
+    $userFound = $stmt->fetch();
+    $stmt->close();
+
+    if ($userFound) {
+        // User authentication successful
+        $_SESSION['id'] = $id;
+        $_SESSION['login'] = $email;
+
+        // Get the user's IP address
+        $ip = $_SERVER['REMOTE_ADDR'];
+
+        // Get current date and time
+        $currentDateTime = date('Y-m-d H:i:s');
+
+        // Get geolocation data
+        $geopluginURL = 'http://www.geoplugin.net/php.gp?ip=' . $ip;
+        $addrDetailsArr = unserialize(file_get_contents($geopluginURL));
+        $city = $addrDetailsArr['geoplugin_city'] ?? 'Unknown';
+        $country = $addrDetailsArr['geoplugin_countryName'] ?? 'Unknown';
+
+        // Prepare the INSERT IGNORE statement to avoid duplicate key entry errors
+        $stmt = $mysqli->prepare("INSERT IGNORE INTO userLog (userId, userEmail, userIp, city, country) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param('issss', $id, $email, $ip, $city, $country);
+        $insertSuccess = $stmt->execute();
+        $stmt->close();
+
+        if ($insertSuccess) {
+            // Redirect to the dashboard
+            header("Location: dashboard.php");
+            exit();
+        } else {
+            echo "Error logging user data: " . $mysqli->error;
+        }
+    } else {
+        // Invalid login
+        echo "<script>alert('Invalid Username/Email or password');</script>";
+    }
 }
-				else
-				{
-					echo "<script>alert('Invalid Username/Email or password');</script>";
-				}
-			}
-				?>
+?>
+
 
 <!doctype html>
 <html lang="en" class="no-js">
