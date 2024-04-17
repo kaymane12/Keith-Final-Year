@@ -178,50 +178,50 @@ $mysqli->close();
         </div>
     </div>
 </div>
+<canvas id="genderChart" width="400" height="200"></canvas>
 
 <!-- Gender Chart -->
+<!-- Add a script tag to include Chart.js if not already included -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Add the code to calculate percentages and plot the bar graph -->
 <script>
+    // Calculate total number of students
+    var totalStudents = <?php echo $maleCount + $femaleCount; ?>;
+
+    // Calculate the percentages of male and female students
+    var malePercentage = (<?php echo $maleCount; ?> / totalStudents) * 100;
+    var femalePercentage = (<?php echo $femaleCount; ?> / totalStudents) * 100;
+
+    // Initialize the canvas for the chart
     var genderCtx = document.getElementById('genderChart').getContext('2d');
+
+    // Create the bar chart
     var genderChart = new Chart(genderCtx, {
-        type: 'bar',
+        type: 'bar', // Specify the chart type as 'bar'
         data: {
-            labels: ['Male', 'Female'],
+            labels: ['Male', 'Female'], // Labels for x-axis
             datasets: [{
-                data: [<?php echo $maleCount; ?>, <?php echo $femaleCount; ?>],
-                backgroundColor: ['#36a2eb', '#ff6384']
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
-
-
-
-    // Course Chart
-    var courseCtx = document.getElementById('courseChart').getContext('2d');
-    var courseChart = new Chart(courseCtx, {
-        type: 'bar',
-        data: {
-            labels: <?php echo json_encode(array_keys($courseCounts)); ?>,
-            datasets: [{
-                label: 'Number of Students',
-                data: <?php echo json_encode(array_values($courseCounts)); ?>,
-                backgroundColor: '#4caf50'
+                label: 'Percentage', // Label for the dataset
+                data: [malePercentage, femalePercentage], // Data as percentages
+                backgroundColor: ['#36a2eb', '#ff6384'], // Colors for male and female
+                borderColor: ['#36a2eb', '#ff6384'], // Border colors for the bars
+                borderWidth: 1 // Border width of the bars
             }]
         },
         options: {
             responsive: true,
             scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
+                y: {
+                    beginAtZero: true, // Start y-axis from zero
+                    title: {
+                        display: true,
+                        text: 'Percentage (%)' // Set y-axis label
                     }
-                }]
+                }
             }
         }
     });
-
     // Names Starting Chart
     var namesStartingCtx = document.getElementById('namesStartingChart').getContext('2d');
     var namesStartingChart = new Chart(namesStartingCtx, {
